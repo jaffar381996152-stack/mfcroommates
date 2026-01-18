@@ -490,7 +490,10 @@ const App: React.FC = () => {
 
       // Admin self settlement entry (required to allow archiving).
       const adminSpent = pendingExpenses.filter(e => e.paidBy === adminId).reduce((acc, e) => acc + e.amount, 0);
-      const adminDue = share - adminSpent;
+      const adminSelfPaid = pendingPayments
+        .filter(p => p.from === adminId && p.to === adminId)
+        .reduce((acc, p) => acc + p.amount, 0);
+      const adminDue = share - (adminSpent + adminSelfPaid);
       if (adminDue > 0.01) {
         pendingDebts.push({ from: adminId, to: adminId, amount: adminDue });
       }
