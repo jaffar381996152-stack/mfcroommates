@@ -259,8 +259,13 @@ const App: React.FC = () => {
       .reduce((acc, p) => acc + p.amount, 0);
     const adminEffectiveSpent = adminSpent + adminSelfPaid;
     const adminDue = share - adminEffectiveSpent;
-    if (Math.abs(adminDue) >= 0.01) {
-      result.push({ from: adminId, to: adminId, amount: Math.abs(adminDue) });
+    // FIX: Only create an "Admin owes Admin" self-debt when the admin is actually UNDERPAID.
+    // Previously we used Math.abs(adminDue) which incorrectly created a self-debt even when
+    // adminDue was negative (admin has already overpaid). Marking this as paid then increased
+    // adminSelfPaid, making adminDue *more negative*, which caused the UI to keep showing the
+    // debt and month-end calculations to grow recursively.
+    if (adminDue > 0.01) {
+      result.push({ from: adminId, to: adminId, amount: adminDue });
     }
 
     return result;
@@ -305,8 +310,9 @@ const App: React.FC = () => {
         .filter(p => p.from === adminId && p.to === adminId)
         .reduce((acc, p) => acc + p.amount, 0);
       const adminDue = share - (adminSpent + adminSelfPaid);
-      if (Math.abs(adminDue) >= 0.01) {
-        monthDebts.push({ from: adminId, to: adminId, amount: Math.abs(adminDue) });
+      // FIX: only record a self-debt when admin is underpaid
+      if (adminDue > 0.01) {
+        monthDebts.push({ from: adminId, to: adminId, amount: adminDue });
       }
     }
 
@@ -374,8 +380,8 @@ const App: React.FC = () => {
         .filter(p => p.from === adminId && p.to === adminId)
         .reduce((acc, p) => acc + p.amount, 0);
       const adminDue = share - (adminSpent + adminSelfPaid);
-      if (Math.abs(adminDue) >= 0.01) {
-        prevMonthDebts.push({ from: adminId, to: adminId, amount: Math.abs(adminDue) });
+      if (adminDue > 0.01) {
+        prevMonthDebts.push({ from: adminId, to: adminId, amount: adminDue });
       }
     }
 
@@ -435,8 +441,8 @@ const App: React.FC = () => {
           .filter(p => p.from === adminId && p.to === adminId)
           .reduce((acc, p) => acc + p.amount, 0);
         const adminDue = share - (adminSpent + adminSelfPaid);
-        if (Math.abs(adminDue) >= 0.01) {
-          prevMonthDebts.push({ from: adminId, to: adminId, amount: Math.abs(adminDue) });
+        if (adminDue > 0.01) {
+          prevMonthDebts.push({ from: adminId, to: adminId, amount: adminDue });
         }
       }
 
@@ -485,8 +491,8 @@ const App: React.FC = () => {
       // Admin self settlement entry (required to allow archiving).
       const adminSpent = pendingExpenses.filter(e => e.paidBy === adminId).reduce((acc, e) => acc + e.amount, 0);
       const adminDue = share - adminSpent;
-      if (Math.abs(adminDue) >= 0.01) {
-        pendingDebts.push({ from: adminId, to: adminId, amount: Math.abs(adminDue) });
+      if (adminDue > 0.01) {
+        pendingDebts.push({ from: adminId, to: adminId, amount: adminDue });
       }
     }
 
@@ -677,12 +683,15 @@ const App: React.FC = () => {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <header className="flex justify-between items-center p-4 bg-white border-b border-slate-100 lg:px-10">
           <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-2xl">☰</button>
-          <div className="hidden lg:block">
-            <h2 className="text-xl font-bold capitalize text-slate-800">{activeTab === 'expenses' ? 'MFC Room mates' : activeTab}</h2>
-            <div className="text-[11px] font-black text-slate-400 uppercase tracking-wider mt-0.5">
+          {/* Mobile header fix: show MFC header + date on small screens too */}
+          <div className="block">
+            <h2 className="text-lg lg:text-xl font-bold capitalize text-slate-800">
+              {activeTab === 'expenses' ? 'MFC Room mates' : activeTab}
+            </h2>
+            <div className="text-[10px] lg:text-[11px] font-black text-slate-400 uppercase tracking-wider mt-0.5">
               {dashboardDateLabel}
             </div>
-            <div className="text-[10px] font-bold text-slate-300 mt-0.5">
+            <div className="hidden lg:block text-[10px] font-bold text-slate-300 mt-0.5">
               Developed by Muhammad Jaffar Abbas
             </div>
           </div>
@@ -814,7 +823,8 @@ const App: React.FC = () => {
                     <div className="text-[10px] font-black text-slate-400 uppercase">Collects & pays</div>
                   </div>
                 </div>
-                <div className="flex gap-3">
+                {/* Mobile layout fix: prevent Add button from overflowing the card */}
+                <div className="flex flex-col sm:flex-row gap-3">
                   <input 
                     className="flex-1 bg-slate-50 border-none rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
                     placeholder="Enter name..." 
@@ -822,7 +832,12 @@ const App: React.FC = () => {
                     onChange={(e) => setRoommateName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addRoommate()}
                   />
-                  <button onClick={addRoommate} className="bg-indigo-600 text-white px-8 rounded-2xl font-bold active:scale-95 transition-all">Add</button>
+                  <button
+                    onClick={addRoommate}
+                    className="w-full sm:w-auto bg-indigo-600 text-white px-6 py-4 sm:py-0 rounded-2xl font-bold active:scale-95 transition-all"
+                  >
+                    Add
+                  </button>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
