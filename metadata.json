@@ -1,0 +1,7 @@
+{
+  "name": "RoomieWallet",
+  "description": "An advanced roommate expense and budget tracker with AI-powered receipt scanning, settlement optimization, and shared financial insights.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
