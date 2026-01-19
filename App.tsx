@@ -111,13 +111,30 @@ const App: React.FC = () => {
     }));
   };
 
+  const handleResetAllData = () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete ALL app data from this device? This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    // Remove ONLY this app's persisted data
+    localStorage.removeItem(STORAGE_KEY);
+
+    // Reset in-memory state as well
+    setState({
+      ...INITIAL_STATE,
+      advances: {},
+      settings: { ...INITIAL_STATE.settings, theme: 'light' }
+    });
+  };
+
   const renderView = () => {
     switch (currentView) {
       case 'Dashboard': return <Dashboard expenses={state.expenses} roommates={state.roommates} onAdd={handleAddExpense} onDelete={handleDeleteExpense} />;
       case 'Analytics': return <Analytics expenses={state.expenses} roommates={state.roommates} />;
       case 'Settlements': return <Settlements expenses={state.expenses} roommates={state.roommates} advances={state.advances} onChangeAdvance={handleChangeAdvance} />;
       case 'Roommates': return <Roommates roommates={state.roommates} onUpdate={handleUpdateRoommates} />;
-      case 'Settings': return <Settings state={state} />;
+      case 'Settings': return <Settings state={state} onResetAllData={handleResetAllData} />;
       case 'Developer': return <Developer state={state} setState={setState} />;
       case 'Archive': return <Archive archive={state.archive} onSettle={handleSettlePrevious} onDelete={handleDeleteArchiveMonth} />;
       default: return <Dashboard expenses={state.expenses} roommates={state.roommates} onAdd={handleAddExpense} onDelete={handleDeleteExpense} />;
