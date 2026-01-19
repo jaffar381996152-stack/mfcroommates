@@ -43,7 +43,8 @@ const Roommates: React.FC<RoommatesProps> = ({ roommates, onUpdate }) => {
         <h3 className="text-sm font-black mb-4 flex items-center gap-2 text-black uppercase tracking-wider">
           <UserPlus size={18} strokeWidth={3} /> Add New Member
         </h3>
-        <div className="flex gap-2">
+        {/* Mobile optimized layout: stack input + button to avoid overflow */}
+        <div className="flex flex-col sm:flex-row gap-2">
           <input 
             type="text" 
             placeholder="Name"
@@ -53,7 +54,7 @@ const Roommates: React.FC<RoommatesProps> = ({ roommates, onUpdate }) => {
           />
           <button 
             onClick={addRoommate}
-            className="bg-black text-white px-6 py-2 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-slate-800 transition-colors"
+            className="bg-black text-white px-6 py-2 rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors w-full sm:w-auto"
           >
             <Plus size={18} strokeWidth={3} /> Add
           </button>
