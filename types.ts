@@ -1,54 +1,41 @@
 
 export enum Category {
-  RENT = 'Rent',
-  GROCERIES = 'Groceries',
-  UTILITIES = 'Utilities',
-  ENTERTAINMENT = 'Entertainment',
-  OTHER = 'Other'
+  Groceries = 'Groceries',
+  Food = 'Food',
+  Other = 'Other'
 }
 
-export interface User {
+export interface Roommate {
   id: string;
   name: string;
-  avatar: string;
+  isAdmin: boolean;
+  isSettled: boolean; // For previous month tracking
 }
 
 export interface Expense {
   id: string;
-  title: string;
+  payerId: string;
   amount: number;
-  date: string;
-  paidBy: string; // User ID
-  splitWith: string[]; // Array of User IDs
   category: Category;
-  receiptUrl?: string;
+  date: string; // ISO string
 }
 
-export interface Budget {
-  category: Category;
-  limit: number;
-}
-
-export interface Debt {
-  from: string;
-  to: string;
-  amount: number;
-}
-
-// A recorded settlement transfer between roommates (or roommate -> admin).
-// This is used to adjust current balances and can be undone if recorded by mistake.
-export interface SettlementPayment {
-  id: string;
-  from: string;
-  to: string;
-  amount: number;
-  date: string; // ISO timestamp
-}
-
-export interface MonthlyHistory {
-  month: string; // "YYYY-MM"
+export interface MonthlyData {
+  monthKey: string; // e.g., "2023-10"
   expenses: Expense[];
-  settlementPayments: SettlementPayment[];
-  totalSpend: number;
-  finalDebts: Debt[];
+  roommates: Roommate[];
+  isSettled: boolean;
 }
+
+export interface AppState {
+  currentMonth: string; // "YYYY-MM"
+  roommates: Roommate[];
+  expenses: Expense[];
+  archive: MonthlyData[];
+  settings: {
+    currency: string;
+    theme: 'light' | 'dark';
+  };
+}
+
+export type View = 'Dashboard' | 'Analytics' | 'Settlements' | 'Roommates' | 'Settings' | 'Developer' | 'Archive';

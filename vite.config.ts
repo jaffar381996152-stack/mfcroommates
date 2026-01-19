@@ -12,31 +12,41 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [
         react(),
+        // PWA: enables offline support + installability for Netlify/GitHub Pages hosting
         VitePWA({
           registerType: 'autoUpdate',
-          includeAssets: ['favicon.ico'],
+          includeAssets: ['favicon.svg', 'robots.txt'],
           manifest: {
-            name: 'RoomieWallet',
-            short_name: 'RoomieWallet',
-            theme_color: '#4f46e5',
-            background_color: '#f8fafc',
+            name: 'MFC Room Budget',
+            short_name: 'Room Budget',
+            description: 'Room expense tracker with settlements and history.',
+            theme_color: '#ffffff',
+            background_color: '#ffffff',
             display: 'standalone',
+            scope: '/',
             start_url: '/',
             icons: [
               {
-                src: 'pwa-192x192.png',
+                src: '/pwa-192.png',
                 sizes: '192x192',
                 type: 'image/png'
               },
               {
-                src: 'pwa-512x512.png',
+                src: '/pwa-512.png',
                 sizes: '512x512',
                 type: 'image/png'
+              },
+              {
+                src: '/pwa-512.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'any maskable'
               }
             ]
           },
           workbox: {
-            globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+            // Ensure the app shell + assets are cached for offline usage
+            globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,json}'],
             navigateFallback: '/index.html'
           }
         })

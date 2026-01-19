@@ -1,7 +1,5 @@
 {
-  "name": "RoomieWallet",
-  "description": "An advanced roommate expense and budget tracker with AI-powered receipt scanning, settlement optimization, and shared financial insights.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "name": "MFC Room Budget",
+  "description": "A comprehensive roommate budget and expense tracker with automated settlements, monthly roll-overs, and PWA capabilities.",
+  "requestFramePermissions": []
 }
