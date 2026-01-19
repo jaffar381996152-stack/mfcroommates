@@ -9,6 +9,7 @@ export const INITIAL_STATE: AppState = {
     { id: '1', name: 'Admin User', isAdmin: true, isSettled: true }
   ],
   expenses: [],
+  advances: {},
   archive: [],
   settings: {
     currency: 'SAR',

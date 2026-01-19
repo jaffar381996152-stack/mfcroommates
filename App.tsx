@@ -16,7 +16,11 @@ const App: React.FC = () => {
   const [state, setState] = useState<AppState>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     const parsed = saved ? JSON.parse(saved) : INITIAL_STATE;
-    return { ...parsed, settings: { ...parsed.settings, theme: 'light' } };
+    return {
+      ...parsed,
+      advances: parsed.advances || {},
+      settings: { ...parsed.settings, theme: 'light' }
+    };
   });
   
   const [currentView, setCurrentView] = useState<View>('Dashboard');
@@ -53,15 +57,25 @@ const App: React.FC = () => {
                 ...prev,
                 currentMonth: actualMonthKey,
                 expenses: [],
+                advances: {},
                 archive: [...prev.archive, newArchiveEntry]
             };
         });
       }
     };
     checkMonthTransition();
-    const interval = setInterval(checkMonthTransition, 1000 * 60 * 60);
+    // Check frequently so if user changes device date/time, the app follows immediately.
+    const interval = setInterval(checkMonthTransition, 1000 * 60);
     return () => clearInterval(interval);
   }, [state.currentMonth, state.expenses, state.roommates]);
+
+  const handleChangeAdvance = (roommateId: string, amount: number) => {
+    if (Number.isNaN(amount) || amount < 0) amount = 0;
+    setState(prev => ({
+      ...prev,
+      advances: { ...prev.advances, [roommateId]: amount }
+    }));
+  };
 
   const isBlocked = useMemo(() => state.archive.some(m => !m.isSettled), [state.archive]);
 
@@ -82,6 +96,14 @@ const App: React.FC = () => {
     setState(prev => ({ ...prev, roommates }));
   };
 
+  const handleChangeAdvance = (roommateId: string, amount: number) => {
+    const safeAmount = Number.isFinite(amount) ? Math.max(0, amount) : 0;
+    setState(prev => ({
+      ...prev,
+      advances: { ...prev.advances, [roommateId]: safeAmount }
+    }));
+  };
+
   const handleSettlePrevious = (monthKey: string) => {
     setState(prev => ({
       ...prev,
@@ -100,7 +122,7 @@ const App: React.FC = () => {
     switch (currentView) {
       case 'Dashboard': return <Dashboard expenses={state.expenses} roommates={state.roommates} onAdd={handleAddExpense} onDelete={handleDeleteExpense} />;
       case 'Analytics': return <Analytics expenses={state.expenses} roommates={state.roommates} />;
-      case 'Settlements': return <Settlements expenses={state.expenses} roommates={state.roommates} />;
+      case 'Settlements': return <Settlements expenses={state.expenses} roommates={state.roommates} advances={state.advances} onChangeAdvance={handleChangeAdvance} />;
       case 'Roommates': return <Roommates roommates={state.roommates} onUpdate={handleUpdateRoommates} />;
       case 'Settings': return <Settings state={state} />;
       case 'Developer': return <Developer state={state} setState={setState} />;

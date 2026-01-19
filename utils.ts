@@ -5,7 +5,11 @@ export const formatCurrency = (amount: number) => {
   return amount.toFixed(2) + ' SAR';
 };
 
-export const calculateSettlements = (expenses: Expense[], roommates: Roommate[]) => {
+export const calculateSettlements = (
+  expenses: Expense[],
+  roommates: Roommate[],
+  advances: Record<string, number> = {}
+) => {
   if (roommates.length === 0) return [];
   
   const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -23,12 +27,16 @@ export const calculateSettlements = (expenses: Expense[], roommates: Roommate[])
     // Difference = Share - Paid. 
     // If Positive: Roommate owes Admin. 
     // If Negative: Admin owes Roommate (Roommate is "in profit").
-    const balance = perPersonShare - paid;
+    const advance = advances[roommate.id] || 0;
+    // Advance means roommate already paid some amount directly to admin.
+    // That should reduce what they still owe in settlements.
+    const balance = perPersonShare - (paid + advance);
     
     return {
       roommateId: roommate.id,
       name: roommate.name,
       paid,
+      advance,
       share: perPersonShare,
       balance, // Positive means they owe money, Negative means they are owed
       isAdmin: roommate.isAdmin

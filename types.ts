@@ -31,6 +31,10 @@ export interface AppState {
   currentMonth: string; // "YYYY-MM"
   roommates: Roommate[];
   expenses: Expense[];
+  /** Manual adjustments (advance payments) used in settlements.
+   *  Example: if roommate already paid 3 SAR to admin, store 3 here.
+   */
+  advances: Record<string, number>; // roommateId -> amount
   archive: MonthlyData[];
   settings: {
     currency: string;
