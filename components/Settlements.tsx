@@ -47,10 +47,9 @@ const Settlements: React.FC<SettlementsProps> = ({ expenses, roommates, advances
                   <p className="text-[10px] text-slate-400 font-bold">Paid: {formatCurrency(s.paid)}</p>
                   {!s.isAdmin && (
                     <div className="mt-2 flex items-center gap-2">
-                      <label className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Advance</label>
+                      <label className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Advance (+paid / -given)</label>
                       <input
                         type="number"
-                        min={0}
                         step={0.01}
                         value={advances[s.roommateId] ?? 0}
                         onChange={(e) => onChangeAdvance(s.roommateId, Number(e.target.value || 0))}

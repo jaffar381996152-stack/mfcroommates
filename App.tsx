@@ -69,14 +69,6 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [state.currentMonth, state.expenses, state.roommates]);
 
-  const handleChangeAdvance = (roommateId: string, amount: number) => {
-    if (Number.isNaN(amount) || amount < 0) amount = 0;
-    setState(prev => ({
-      ...prev,
-      advances: { ...prev.advances, [roommateId]: amount }
-    }));
-  };
-
   const isBlocked = useMemo(() => state.archive.some(m => !m.isSettled), [state.archive]);
 
   const handleAddExpense = (expense: Omit<Expense, 'id'>) => {
@@ -96,8 +88,9 @@ const App: React.FC = () => {
     setState(prev => ({ ...prev, roommates }));
   };
 
+  // Advance can be positive (roommate already paid admin) or negative (admin already gave roommate)
   const handleChangeAdvance = (roommateId: string, amount: number) => {
-    const safeAmount = Number.isFinite(amount) ? Math.max(0, amount) : 0;
+    const safeAmount = Number.isFinite(amount) ? amount : 0;
     setState(prev => ({
       ...prev,
       advances: { ...prev.advances, [roommateId]: safeAmount }
